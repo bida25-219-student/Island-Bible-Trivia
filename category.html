@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instructions - Island Bible Trivia</title>
+<title>Select Category - Island Bible Trivia</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body {
@@ -33,21 +33,28 @@ body::before {
     position:relative;
     z-index:1;
     background: rgba(0,0,0,0.75);
-    padding:40px 30px;
+    padding:50px 30px;
     border-radius:15px;
+    text-align:center;
     width:400px;
-    text-align:left;
+    box-shadow:0 8px 20px rgba(0,0,0,0.6);
 }
-h1{text-align:center; margin-bottom:20px;}
-ul{ margin-left:20px;}
-li{ margin-bottom:10px;}
-.btn-back{ margin-top:20px; width:100%; font-size:1.1rem; }
-
-#toggleBtn{
-    position:fixed; top:20px; right:20px; z-index:50;
-    padding:10px 15px; border:none; border-radius:5px;
-    background:white; color:black; cursor:pointer;
+.container-box h1 { margin-bottom:25px; }
+.category-btn {
+    display:block;
+    margin:12px 0;
+    width:100%;
+    font-size:1.2rem;
+    padding:10px;
+    border-radius:5px;
+    border:none;
+    background:#f0f0f0;
+    color:black;
+    cursor:pointer;
+    transition:0.2s;
 }
+.category-btn:hover { background:#ddd; }
+.btn-back { margin-top:20px; width:100%; font-size:1.1rem; }
 
 /* Floating Bibles */
 .floating{
@@ -68,34 +75,41 @@ li{ margin-bottom:10px;}
 75%{ transform: translateY(25vh) translateX(40px) rotate(270deg);}
 100%{ transform: translateY(-10vh) translateX(-30px) rotate(360deg); opacity:0;}
 }
+
+#toggleBtn{
+    position:fixed; top:20px; right:20px; z-index:50;
+    padding:10px 15px; border:none; border-radius:5px;
+    background:white; color:black; cursor:pointer;
+}
 </style>
 </head>
 <body>
 
+<!-- Persistent Music -->
 <iframe src="music.html" style="display:none;" id="musicFrame"></iframe>
+
+<!-- Toggle Music -->
 <button id="toggleBtn">Pause Music</button>
 
 <div class="container-box">
-<h1>Game Instructions</h1>
-<ul>
-<li>Start the game from the Home page by selecting <strong>Start Game</strong>.</li>
-<li>Choose a mode: <strong>Solo, Double Team, Triple Team, Quad</strong>.</li>
-<li>Enter valid player names for the selected mode.</li>
-<li>Select a difficulty level: <strong>Easy, Normal, Hard, Very Hard, Legendary</strong>.</li>
-<li>Answer Bible trivia questions. Each question has a 10-second timer.</li>
-<li>Correct answers increase your score; wrong answers show the correct answer in green.</li>
-<li>The game continues for all 40 questions of the selected difficulty.</li>
-<li>At the end, each player’s total score is displayed. The highest score wins.</li>
-<li>Use your Bible knowledge to answer as many questions correctly as possible!</li>
-</ul>
-<a href="index.html" class="btn btn-light btn-back">Back</a>
+<h1>Select a Category</h1>
+
+<button class="category-btn" data-category="Parables">Parables</button>
+<button class="category-btn" data-category="Love and Relationship Stories">Love and Relationship Stories</button>
+<button class="category-btn" data-category="Apocalyptic and Visionary Stories">Apocalyptic and Visionary Stories</button>
+<button class="category-btn" data-category="Genealogies">Genealogies</button>
+<button class="category-btn" data-category="Wisdom and Instructional Stories">Wisdom and Instructional Stories</button>
+<button class="category-btn" data-category="Historical Narratives">Historical Narratives</button>
+
+<a href="name.html" class="btn btn-light btn-back">Back</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Floating Bibles
 const floatingObjects = ["images.jpg"];
-for(let i=0;i<15;i++){
+const numObjects = 15;
+for(let i=0;i<numObjects;i++){
     const obj=document.createElement("div");
     obj.classList.add("floating");
     obj.style.backgroundImage = `url(${floatingObjects[0]})`;
@@ -122,6 +136,16 @@ toggleBtn.addEventListener("click", ()=>{
     musicFrame.postMessage({action:isMuted?"pause":"play", muted:isMuted},"*");
     toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
     localStorage.setItem('musicMuted', isMuted);
+});
+
+// Category selection
+const buttons = document.querySelectorAll('.category-btn');
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const category = btn.dataset.category;
+        localStorage.setItem('selectedCategory', category);
+        window.location.href = 'playerdifficulty.html';
+    });
 });
 </script>
 

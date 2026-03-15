@@ -6,14 +6,46 @@
 <title>Players - Island Challenge</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body{background:linear-gradient(to right,#1e3c72,#2a5298);min-height:100vh;display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;}
-.container-box{background:rgba(0,0,0,0.75);padding:50px 30px;border-radius:15px;text-align:center;width:350px;}
-.container-box a{display:block;margin:12px 0;width:100%;font-size:1.2rem;}
-.container-box a:hover{transform:scale(1.05);transition:0.2s;}
+body {
+    background: linear-gradient(to right,#1e3c72,#2a5298);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+.container-box {
+    background: rgba(0,0,0,0.75);
+    padding:50px 30px;
+    border-radius:15px;
+    text-align:center;
+    width:350px;
+}
+.container-box a {
+    display:block;
+    margin:12px 0;
+    width:100%;
+    font-size:1.2rem;
+    text-decoration:none;
+    color:white;
+}
+.container-box a:hover {
+    transform:scale(1.05);
+    transition:0.2s;
+}
 h1{margin-bottom:20px;}
 </style>
 </head>
 <body>
+
+<!-- Persistent Music -->
+<iframe src="music.html" style="display:none;" id="musicFrame"></iframe>
+
+<!-- Music Toggle Button -->
+<button id="toggleBtn" style="position:fixed; top:20px; right:20px; z-index:50;">
+  Pause Music
+</button>
 
 <div class="container-box">
 <h1>Enter Player Names</h1>
@@ -26,7 +58,17 @@ h1{margin-bottom:20px;}
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode');
 document.getElementById('nextButton').href = `name.html?mode=${mode}`;
+
+// Sync volume/mute with music iframe
+const musicFrame = document.getElementById('musicFrame');
+window.addEventListener('load', () => {
+    let musicVolume = parseInt(localStorage.getItem('musicVolume')) || 50;
+    let isMuted = JSON.parse(localStorage.getItem('musicMuted')) || false;
+    musicFrame.contentWindow.postMessage({volume: musicVolume, muted: isMuted}, '*');
+});
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="floating.js"></script>
 </body>
 </html>

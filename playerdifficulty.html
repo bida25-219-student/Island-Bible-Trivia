@@ -3,75 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Choose Difficulty - Island Challenge</title>
+<title>Choose Difficulty - Island Bible Trivia</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body {
-    background: linear-gradient(to right,#1e3c72,#2a5298);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
+    margin:0;
     font-family: Arial,sans-serif;
+    color:white;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    background: url('2600768.png') no-repeat center center fixed;
+    background-size: cover;
 }
+body::before {
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    z-index:0;
+    animation: overlayPulse 10s ease-in-out infinite alternate;
+}
+@keyframes overlayPulse {0%{background: rgba(0,0,0,0.4);}100%{background: rgba(0,0,0,0.55);}}
+
 .container-box {
-    background: rgba(0,0,0,0.75);
-    padding: 50px 30px;
-    border-radius: 15px;
-    text-align: center;
-    width: 350px;
+    position:relative;
+    z-index:1;
+    background: rgba(0,0,0,0.85);
+    padding:50px 30px;
+    border-radius:15px;
+    text-align:center;
+    width:350px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.6);
 }
+
 .container-box button {
     display: block;
     margin: 12px 0;
     width: 100%;
-    font-size: 1.2rem;
-    color: black; /* default text color */
-    background: white; /* button background */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    font-size:1.2rem;
+    color:black;
+    background:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    transition:0.2s;
 }
 .container-box button.selected {
     background: green;
-    color: white; /* text visible on green background */
+    color:white;
 }
-.container-box button:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s;
-    color: black; /* text visible on hover */
+.container-box button:hover { background:#ddd; }
+
+h1,h3{ margin-bottom:20px; }
+
+#toggleBtn{
+    position:fixed; top:20px; right:20px; z-index:50;
+    padding:10px 15px; border:none; border-radius:5px;
+    background:white; color:black; cursor:pointer;
 }
-h1 { margin-bottom: 20px; }
+
+/* Floating Bibles */
+.floating{
+    position:absolute;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:contain;
+    pointer-events:none;
+    z-index:0;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+    animation: floatDrift linear infinite;
+}
+@keyframes floatDrift{
+0%{ transform: translateY(100vh) translateX(0px) rotate(0deg); opacity:0;}
+10%{opacity:1;}
+25%{ transform: translateY(75vh) translateX(40px) rotate(90deg);}
+50%{ transform: translateY(50vh) translateX(-30px) rotate(180deg);}
+75%{ transform: translateY(25vh) translateX(40px) rotate(270deg);}
+100%{ transform: translateY(-10vh) translateX(-30px) rotate(360deg); opacity:0;}
+}
 </style>
 </head>
 <body>
 
+<!-- Persistent Music -->
+<iframe src="music.html" style="display:none;" id="musicFrame"></iframe>
+<button id="toggleBtn">Pause Music</button>
+
 <div class="container-box">
 <h1>Select Difficulty</h1>
+<h3 id="categoryDisplay"></h3>
+
 <button class="difficulty">Easy</button>
 <button class="difficulty">Normal</button>
 <button class="difficulty">Hard</button>
 <button class="difficulty">Very Hard</button>
 <button class="difficulty">Legendary</button>
-<a href="game.html" class="btn btn-light mt-3 w-100">Back to Game Modes</a>
+
+<a href="category.html" class="btn btn-light mt-3 w-100">Back to Categories</a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Display selected category
+const selectedCategory = localStorage.getItem('selectedCategory') || 'No Category Selected';
+document.getElementById('categoryDisplay').textContent = `Category: ${selectedCategory}`;
+
+// Floating Bibles
+const floatingObjects = ["images.jpg"];
+const numObjects = 15;
+for(let i=0;i<numObjects;i++){
+    const obj=document.createElement("div");
+    obj.classList.add("floating");
+    obj.style.backgroundImage = `url(${floatingObjects[0]})`;
+    obj.style.left = Math.random()*100 + "vw";
+    obj.style.animationDuration = (15+Math.random()*15) + "s";
+    const size = 20+Math.random()*50;
+    obj.style.width=size+"px";
+    obj.style.height=size+"px";
+    obj.style.opacity=Math.random();
+    document.body.appendChild(obj);
+}
+
+// Music Toggle
+const toggleBtn = document.getElementById("toggleBtn");
+const musicFrame = document.getElementById("musicFrame").contentWindow;
+let isMuted=false;
+try{
+    isMuted = JSON.parse(localStorage.getItem('musicMuted'));
+    if(isMuted===null) isMuted=false;
+}catch(e){isMuted=false;}
+toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+toggleBtn.addEventListener("click", ()=>{
+    isMuted = !isMuted;
+    musicFrame.postMessage({action:isMuted?"pause":"play", muted:isMuted},"*");
+    toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+    localStorage.setItem('musicMuted', isMuted);
+});
+
+// Difficulty button logic
 const buttons = document.querySelectorAll('.difficulty');
 buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-        // Remove selected from all buttons
-        buttons.forEach(b => b.classList.remove('selected'));
-        // Add selected to the clicked button
+        buttons.forEach(b=>b.classList.remove('selected'));
         btn.classList.add('selected');
-        // Save selected difficulty
         localStorage.setItem('selectedDifficulty', btn.textContent);
-        // Go to playgame page
-        setTimeout(() => { window.location.href = 'playgame.html'; }, 300);
+        setTimeout(()=>{ window.location.href='playgame.html'; },300);
     });
 });
 </script>
-
 </body>
 </html>

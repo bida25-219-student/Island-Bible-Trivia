@@ -3,121 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enter Names - Island Challenge</title>
+<title>Enter Player Names - Island Bible Trivia</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body {
-    background: linear-gradient(to right,#1e3c72,#2a5298);
-    min-height:100vh;
+    margin:0;
+    font-family: Arial,sans-serif;
+    color:white;
+    height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    color:white;
-    font-family:Arial,sans-serif;
+    overflow:hidden;
+    background: url('2600768.png') no-repeat center center fixed;
+    background-size: cover;
 }
+body::before {
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    z-index:0;
+    animation: overlayPulse 10s ease-in-out infinite alternate;
+}
+@keyframes overlayPulse {0%{background: rgba(0,0,0,0.4);}100%{background: rgba(0,0,0,0.55);}}
 .container-box {
+    position:relative;
+    z-index:1;
     background: rgba(0,0,0,0.75);
     padding:50px 30px;
     border-radius:15px;
     text-align:center;
     width:400px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.6);
 }
-.container-box input, .container-box button, .container-box a {
-    display:block;
-    margin:12px 0;
-    width:100%;
-    font-size:1.2rem;
-    padding:8px;
-    border-radius:5px;
-    border:none;
+.container-box input, .container-box button, .container-box a{
+    display:block; margin:12px 0; width:100%;
+    font-size:1.2rem; padding:10px; border-radius:5px; border:none;
+    text-align:center; color:black; background:white; transition:0.2s;
 }
-.container-box input { color:black; }
-.container-box button, .container-box a {
-    color:white;
-    background:#28a745;
-    text-align:center;
-    text-decoration:none;
-}
-.container-box button:hover, .container-box a:hover { background:#218838; }
-.error-msg { color: #ff6961; font-size:0.9rem; margin-top:-8px; margin-bottom:8px; text-align:left; }
+.container-box input:focus{outline:none;}
+.container-box button:hover, .container-box a:hover{background:#ddd;}
+.error-msg{color:#ff6961;font-size:0.9rem;margin-top:-8px;margin-bottom:8px;text-align:left;}
 h1{margin-bottom:20px;}
+
+/* Floating Bibles */
+.floating{
+    position:absolute;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:contain;
+    pointer-events:none;
+    z-index:0;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+    animation: floatDrift linear infinite;
+}
+@keyframes floatDrift{
+0%{ transform: translateY(100vh) translateX(0px) rotate(0deg); opacity:0;}
+10%{opacity:1;}
+25%{ transform: translateY(75vh) translateX(40px) rotate(90deg);}
+50%{ transform: translateY(50vh) translateX(-30px) rotate(180deg);}
+75%{ transform: translateY(25vh) translateX(40px) rotate(270deg);}
+100%{ transform: translateY(-10vh) translateX(-30px) rotate(360deg); opacity:0;}
+}
+
+#toggleBtn{
+    position:fixed; top:20px; right:20px; z-index:50;
+    padding:10px 15px; border:none; border-radius:5px;
+    background:white; color:black; cursor:pointer;
+}
 </style>
 </head>
 <body>
+
+<!-- Persistent Music -->
+<iframe src="music.html" style="display:none;" id="musicFrame"></iframe>
+
+<!-- Toggle Music -->
+<button id="toggleBtn">Pause Music</button>
 
 <div class="container-box">
 <h1>Enter Player Names</h1>
 <div id="inputs"></div>
 <button id="nextBtn">Next</button>
-<a id="backBtn" href="players.html" class="btn btn-light mt-3">Back</a>
+<a href="game.html" class="btn mt-3">Back</a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
+// Floating Bibles
+const floatingObjects = ["images.jpg"];
+const numObjects = 15;
+for(let i=0;i<numObjects;i++){
+    const obj=document.createElement("div");
+    obj.classList.add("floating");
+    obj.style.backgroundImage = `url(${floatingObjects[0]})`;
+    obj.style.left = Math.random()*100 + "vw";
+    obj.style.animationDuration = (15+Math.random()*15) + "s";
+    const size = 20+Math.random()*50;
+    obj.style.width=size+"px";
+    obj.style.height=size+"px";
+    obj.style.opacity=Math.random();
+    document.body.appendChild(obj);
+}
+
+// Music Toggle
+const toggleBtn = document.getElementById("toggleBtn");
+const musicFrame = document.getElementById("musicFrame").contentWindow;
+let isMuted=false;
+try{
+    isMuted = JSON.parse(localStorage.getItem('musicMuted'));
+    if(isMuted===null) isMuted=false;
+}catch(e){isMuted=false;}
+toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+toggleBtn.addEventListener("click", ()=>{
+    isMuted = !isMuted;
+    musicFrame.postMessage({action:isMuted?"pause":"play", muted:isMuted},"*");
+    toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+    localStorage.setItem('musicMuted', isMuted);
+});
+
 // Get mode from URL
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode') || 'solo';
 const inputsDiv = document.getElementById('inputs');
 
-// Determine teams and placeholders
+// Determine player inputs
 let teams = [];
 switch(mode){
-    case 'solo': teams = ['Player']; break;
-    case 'double': teams = ['Team A Player 1', 'Team A Player 2', 'Team B Player 1', 'Team B Player 2']; break;
-    case 'triple': teams = ['Team A', 'Team B', 'Team C']; break;
-    case 'quad': teams = ['Team A', 'Team B', 'Team C', 'Team D']; break;
+    case 'solo': teams=['Player']; break;
+    case 'double': teams=['Team A Player 1','Team A Player 2','Team B Player 1','Team B Player 2']; break;
+    case 'triple': teams=['Team A','Team B','Team C']; break;
+    case 'quad': teams=['Team A','Team B','Team C','Team D']; break;
 }
 
-// Create input fields
-teams.forEach((placeholder, i)=>{
-    const input = document.createElement('input');
+// Create inputs
+teams.forEach((placeholder,i)=>{
+    const input=document.createElement('input');
     input.type='text';
     input.placeholder=placeholder;
     input.id=`player${i+1}`;
     inputsDiv.appendChild(input);
-
-    const error = document.createElement('div');
+    const error=document.createElement('div');
     error.className='error-msg';
     error.id=`error${i+1}`;
     inputsDiv.appendChild(error);
 });
 
-// Regex for proper names
-const nameRegex = /^[A-Za-z\s]+$/;
-
-// Next button click
+// Validate names
+const nameRegex=/^[A-Za-z\s]+$/;
 document.getElementById('nextBtn').addEventListener('click',()=>{
-    let hasError = false;
-    let playerData = [];
-
-    teams.forEach((_, i)=>{
-        const input = document.getElementById(`player${i+1}`);
-        const errorDiv = document.getElementById(`error${i+1}`);
-        const value = input.value.trim();
-        errorDiv.textContent = '';
-
-        if(!value){
-            errorDiv.textContent = 'This field is required.';
-            hasError = true;
-            return;
-        }
-
-        if(!nameRegex.test(value)){
-            errorDiv.textContent = 'Please enter a proper name (letters only).';
-            hasError = true;
-            return;
-        }
-
+    let hasError=false;
+    let playerData=[];
+    teams.forEach((_,i)=>{
+        const input=document.getElementById(`player${i+1}`);
+        const errorDiv=document.getElementById(`error${i+1}`);
+        const value=input.value.trim();
+        errorDiv.textContent='';
+        if(!value){errorDiv.textContent='This field is required.';hasError=true;return;}
+        if(!nameRegex.test(value)){errorDiv.textContent='Letters only.';hasError=true;return;}
         playerData.push(value);
     });
-
     if(hasError) return;
-
-    // Save player names and mode
     localStorage.setItem('playerNames', JSON.stringify(playerData));
-    localStorage.setItem('selectedMode', mode);
-
-    // Navigate to difficulty selection
-    window.location.href='playerdifficulty.html';
+    window.location.href='category.html';
 });
 </script>
 

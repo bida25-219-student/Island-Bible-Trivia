@@ -7,153 +7,136 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body {
-    background: linear-gradient(to right, #1e3c72, #2a5298);
-    height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin:0;
     font-family: Arial, sans-serif;
-    color: white;
-    overflow: hidden;
+    color:white;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    background: url('2600768.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body::before {
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    z-index:0;
+    animation: overlayPulse 10s ease-in-out infinite alternate;
+}
+@keyframes overlayPulse {
+    0% {background: rgba(0,0,0,0.4);}
+    100% {background: rgba(0,0,0,0.55);}
 }
 .menu-box {
+    position: relative;
+    z-index:1;
     background: rgba(0,0,0,0.75);
-    padding: 50px 30px;
-    border-radius: 15px;
-    text-align: center;
-    width: 320px;
+    padding:50px 30px;
+    border-radius:15px;
+    text-align:center;
+    width:350px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.6);
+    transition: transform 0.3s;
 }
+.menu-box:hover { transform:scale(1.05);}
 .menu-box a {
-    display: block;
-    margin: 12px 0;
-    width: 100%;
-    font-size: 1.2rem;
+    display:block;
+    margin:12px 0;
+    width:100%;
+    font-size:1.2rem;
+    padding:10px;
+    border-radius:5px;
+    text-decoration:none;
+    color:black;
+    background:white;
+    text-align:center;
+    transition: all 0.3s ease;
 }
-.menu-box a:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s;
-}
+.menu-box a:hover { background:#ddd; transform:scale(1.05);}
+h1 { margin-bottom:20px; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); }
 
-/* Popup styles */
-#popup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.85);
-    padding: 30px 25px;
-    border-radius: 15px;
-    text-align: center;
-    width: 300px;
-    cursor: grab;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    display: none; /* hidden initially */
-    z-index: 10;
+/* Floating Bibles */
+.floating{
+    position:absolute;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:contain;
+    pointer-events:none;
+    z-index:0;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+    animation: floatDrift linear infinite;
 }
-#popup h2 { margin-bottom: 20px; }
-#popup button {
-    margin: 10px;
-    width: 100px;
-    font-size: 1rem;
+@keyframes floatDrift{
+0%{ transform: translateY(100vh) translateX(0px) rotate(0deg); opacity:0;}
+10%{opacity:1;}
+25%{ transform: translateY(75vh) translateX(40px) rotate(90deg);}
+50%{ transform: translateY(50vh) translateX(-30px) rotate(180deg);}
+75%{ transform: translateY(25vh) translateX(40px) rotate(270deg);}
+100%{ transform: translateY(-10vh) translateX(-30px) rotate(360deg); opacity:0;}
+}
+#toggleBtn{
+    position:fixed; top:20px; right:20px; z-index:50;
+    padding:10px 15px; border:none; border-radius:5px;
+    background:white; color:black; cursor:pointer;
 }
 </style>
 </head>
 <body>
 
+<!-- Persistent Music -->
+<iframe src="music.html" style="display:none;" id="musicFrame"></iframe>
+
+<!-- Toggle Music -->
+<button id="toggleBtn">Pause Music</button>
+
 <div class="menu-box">
-    <h1>Island Bible Trivia</h1>
-<p>Test your knowledge of the Holy Bible in this exciting trivia challenge. 
-Play solo or compete with teams and answer questions before the timer runs out!</p>
-
-    <a href="game.html" class="btn btn-success">Start Game</a>
-    <a href="settings.html" class="btn btn-secondary">Settings</a>
-    <a href="instructions.html" class="btn btn-info">Instructions</a>
-    <a href="help.html" class="btn btn-warning">Help</a>
-    <a href="#" id="exitBtn" class="btn btn-danger">Exit</a>
+<h1>Island Bible Trivia</h1>
+<a href="game.html">Start Game</a>
+<a href="settings.html">Settings</a>
+<a href="instructions.html">Instructions</a>
+<a href="help.html">Help</a>
 </div>
-
-<!-- Exit popup -->
-<div id="popup">
-    <h2>Do you want to exit the game?</h2>
-    <button id="yesBtn" class="btn btn-danger">Yes</button>
-    <button id="noBtn" class="btn btn-success">No</button>
-</div>
-
-<script>
-// Show popup when Exit button clicked
-const exitBtn = document.getElementById('exitBtn');
-const popup = document.getElementById('popup');
-
-exitBtn.addEventListener('click', ()=>{
-    popup.style.display = 'block';
-});
-
-// Draggable popup
-let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
-
-popup.addEventListener('mousedown', (e)=>{
-    isDragging = true;
-    offsetX = e.clientX - popup.offsetLeft;
-    offsetY = e.clientY - popup.offsetTop;
-    popup.style.cursor = 'grabbing';
-});
-
-document.addEventListener('mouseup', ()=> {
-    isDragging = false;
-    popup.style.cursor = 'grab';
-});
-
-document.addEventListener('mousemove', (e)=>{
-    if(isDragging){
-        let x = e.clientX - offsetX;
-        let y = e.clientY - offsetY;
-
-        x = Math.max(0, Math.min(window.innerWidth - popup.offsetWidth, x));
-        y = Math.max(0, Math.min(window.innerHeight - popup.offsetHeight, y));
-
-        popup.style.left = x + 'px';
-        popup.style.top = y + 'px';
-    }
-});
-
-// Buttons inside popup
-document.getElementById('yesBtn').addEventListener('click', ()=>{
-    alert("Game will now close. Please close the browser tab/window.");
-    window.location.href = "about:blank";
-});
-
-document.getElementById('noBtn').addEventListener('click', ()=>{
-    popup.style.display = 'none';
-});
-
-// Fun hover effect for Yes button (dodging)
-const yesBtn = document.getElementById('yesBtn');
-yesBtn.addEventListener('mouseenter', ()=>{
-    const maxX = popup.offsetWidth - yesBtn.offsetWidth - 10;
-    const maxY = popup.offsetHeight - yesBtn.offsetHeight - 10;
-    const randX = Math.floor(Math.random() * maxX);
-    const randY = Math.floor(Math.random() * maxY);
-    yesBtn.style.position = 'relative';
-    yesBtn.style.left = randX + 'px';
-    yesBtn.style.top = randY + 'px';
-});
-
-// Make popup move randomly slightly every 2 seconds
-setInterval(()=>{
-    if(popup.style.display === 'block'){
-        const maxX = window.innerWidth - popup.offsetWidth;
-        const maxY = window.innerHeight - popup.offsetHeight;
-        const randX = Math.floor(Math.random() * maxX);
-        const randY = Math.floor(Math.random() * maxY);
-        popup.style.left = randX + 'px';
-        popup.style.top = randY + 'px';
-    }
-}, 2000);
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Floating Bibles
+const floatingObjects = ["images.jpg"];
+const numObjects = 15;
+for(let i=0;i<numObjects;i++){
+    const obj=document.createElement("div");
+    obj.classList.add("floating");
+    obj.style.backgroundImage = `url(${floatingObjects[0]})`;
+    obj.style.left = Math.random()*100 + "vw";
+    obj.style.animationDuration = (15+Math.random()*15) + "s";
+    const size = 20+Math.random()*50;
+    obj.style.width=size+"px";
+    obj.style.height=size+"px";
+    obj.style.opacity=Math.random();
+    document.body.appendChild(obj);
+}
+
+// Music Toggle
+const toggleBtn = document.getElementById("toggleBtn");
+const musicFrame = document.getElementById("musicFrame").contentWindow;
+let isMuted=false;
+try{
+    isMuted = JSON.parse(localStorage.getItem('musicMuted'));
+    if(isMuted===null) isMuted=false;
+}catch(e){isMuted=false;}
+toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+
+toggleBtn.addEventListener("click", ()=>{
+    isMuted = !isMuted;
+    musicFrame.postMessage({action:isMuted?"pause":"play", muted:isMuted},"*");
+    toggleBtn.textContent = isMuted?"Play Music":"Pause Music";
+    localStorage.setItem('musicMuted', isMuted);
+});
+</script>
+
 </body>
 </html>

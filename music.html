@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Persistent Music</title>
+</head>
+<body style="display:none;">
+
+<audio id="bgMusic" loop autoplay>
+    <source src="bgmusic.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const music = document.getElementById('bgMusic');
+
+// Safely load saved state
+let musicVolume = parseInt(localStorage.getItem('musicVolume')) || 50;
+let isMuted = false;
+try {
+    isMuted = JSON.parse(localStorage.getItem('musicMuted'));
+    if (isMuted === null) isMuted = false;
+} catch(e) {
+    isMuted = false;
+}
+
+// Apply initial volume
+music.volume = isMuted ? 0 : musicVolume / 100;
+music.play().catch(() => {});
+
+// Listen for messages from pages
+window.addEventListener("message", (event) => {
+    const data = event.data;
+
+    // Update volume/mute
+    if (data.volume !== undefined) musicVolume = data.volume;
+    if (data.muted !== undefined) isMuted = data.muted;
+
+    // Handle play/pause
+    if (data.action === "play") {
+        music.play().catch(() => {});
+    }
+    if (data.action === "pause") {
+        music.pause();
+    }
+
+    // Apply volume
+    music.volume = isMuted ? 0 : musicVolume / 100;
+
+    // Save state
+    localStorage.setItem('musicVolume', musicVolume);
+    localStorage.setItem('musicMuted', isMuted);
+});
+</script>
+
+</body>
+</html>
