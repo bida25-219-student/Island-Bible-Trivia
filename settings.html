@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - Island Challenge</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+.container-box {
+    background: rgba(0,0,0,0.75);
+    padding: 50px 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 350px;
+}
+.container-box button {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
+    font-size: 1.1rem;
+}
+h1 { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container-box">
+    <h1>Settings</h1>
+
+    <button id="volUp" class="btn btn-success">Increase Volume</button>
+    <button id="volDown" class="btn btn-danger">Decrease Volume</button>
+    <button id="musicUp" class="btn btn-primary">Increase Music Audio</button>
+    <button id="musicDown" class="btn btn-warning">Decrease Music Audio</button>
+
+    <a href="index.html" class="btn btn-light mt-3">Back to Home</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* Load stored settings or defaults */
+let gameVolume = parseFloat(localStorage.getItem('gameVolume')) || 0.5;
+let musicVolume = parseFloat(localStorage.getItem('musicVolume')) || 0.5;
+
+function saveVolumes() {
+    localStorage.setItem('gameVolume', gameVolume);
+    localStorage.setItem('musicVolume', musicVolume);
+}
+
+/* Volume buttons */
+document.getElementById('volUp').addEventListener('click', () => {
+    gameVolume = Math.min(gameVolume + 0.1, 1);
+    saveVolumes();
+    alert('Game volume: ' + Math.round(gameVolume * 100) + '%');
+});
+document.getElementById('volDown').addEventListener('click', () => {
+    gameVolume = Math.max(gameVolume - 0.1, 0);
+    saveVolumes();
+    alert('Game volume: ' + Math.round(gameVolume * 100) + '%');
+});
+document.getElementById('musicUp').addEventListener('click', () => {
+    musicVolume = Math.min(musicVolume + 0.1, 1);
+    saveVolumes();
+    alert('Music volume: ' + Math.round(musicVolume * 100) + '%');
+});
+document.getElementById('musicDown').addEventListener('click', () => {
+    musicVolume = Math.max(musicVolume - 0.1, 0);
+    saveVolumes();
+    alert('Music volume: ' + Math.round(musicVolume * 100) + '%');
+});
+</script>
+</body>
+</html>

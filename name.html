@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enter Names - Island Challenge</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+    background: linear-gradient(to right,#1e3c72,#2a5298);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+.container-box {
+    background: rgba(0,0,0,0.75);
+    padding:50px 30px;
+    border-radius:15px;
+    text-align:center;
+    width:400px;
+}
+.container-box input, .container-box button, .container-box a {
+    display:block;
+    margin:12px 0;
+    width:100%;
+    font-size:1.2rem;
+    padding:8px;
+    border-radius:5px;
+    border:none;
+}
+.container-box input { color:black; }
+.container-box button, .container-box a {
+    color:white;
+    background:#28a745;
+    text-align:center;
+    text-decoration:none;
+}
+.container-box button:hover, .container-box a:hover { background:#218838; }
+.error-msg { color: #ff6961; font-size:0.9rem; margin-top:-8px; margin-bottom:8px; text-align:left; }
+h1{margin-bottom:20px;}
+</style>
+</head>
+<body>
+
+<div class="container-box">
+<h1>Enter Player Names</h1>
+<div id="inputs"></div>
+<button id="nextBtn">Next</button>
+<a id="backBtn" href="players.html" class="btn btn-light mt-3">Back</a>
+</div>
+
+<script>
+// Get mode from URL
+const urlParams = new URLSearchParams(window.location.search);
+const mode = urlParams.get('mode') || 'solo';
+const inputsDiv = document.getElementById('inputs');
+
+// Determine teams and placeholders
+let teams = [];
+switch(mode){
+    case 'solo': teams = ['Player']; break;
+    case 'double': teams = ['Team A Player 1', 'Team A Player 2', 'Team B Player 1', 'Team B Player 2']; break;
+    case 'triple': teams = ['Team A', 'Team B', 'Team C']; break;
+    case 'quad': teams = ['Team A', 'Team B', 'Team C', 'Team D']; break;
+}
+
+// Create input fields
+teams.forEach((placeholder, i)=>{
+    const input = document.createElement('input');
+    input.type='text';
+    input.placeholder=placeholder;
+    input.id=`player${i+1}`;
+    inputsDiv.appendChild(input);
+
+    const error = document.createElement('div');
+    error.className='error-msg';
+    error.id=`error${i+1}`;
+    inputsDiv.appendChild(error);
+});
+
+// Regex for proper names
+const nameRegex = /^[A-Za-z\s]+$/;
+
+// Next button click
+document.getElementById('nextBtn').addEventListener('click',()=>{
+    let hasError = false;
+    let playerData = [];
+
+    teams.forEach((_, i)=>{
+        const input = document.getElementById(`player${i+1}`);
+        const errorDiv = document.getElementById(`error${i+1}`);
+        const value = input.value.trim();
+        errorDiv.textContent = '';
+
+        if(!value){
+            errorDiv.textContent = 'This field is required.';
+            hasError = true;
+            return;
+        }
+
+        if(!nameRegex.test(value)){
+            errorDiv.textContent = 'Please enter a proper name (letters only).';
+            hasError = true;
+            return;
+        }
+
+        playerData.push(value);
+    });
+
+    if(hasError) return;
+
+    // Save player names and mode
+    localStorage.setItem('playerNames', JSON.stringify(playerData));
+    localStorage.setItem('selectedMode', mode);
+
+    // Navigate to difficulty selection
+    window.location.href='playerdifficulty.html';
+});
+</script>
+
+</body>
+</html>

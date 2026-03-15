@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Difficulty - Island Challenge</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+    background: linear-gradient(to right,#1e3c72,#2a5298);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: Arial,sans-serif;
+}
+.container-box {
+    background: rgba(0,0,0,0.75);
+    padding: 50px 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 350px;
+}
+.container-box button {
+    display: block;
+    margin: 12px 0;
+    width: 100%;
+    font-size: 1.2rem;
+    color: black; /* default text color */
+    background: white; /* button background */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.container-box button.selected {
+    background: green;
+    color: white; /* text visible on green background */
+}
+.container-box button:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s;
+    color: black; /* text visible on hover */
+}
+h1 { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container-box">
+<h1>Select Difficulty</h1>
+<button class="difficulty">Easy</button>
+<button class="difficulty">Normal</button>
+<button class="difficulty">Hard</button>
+<button class="difficulty">Very Hard</button>
+<button class="difficulty">Legendary</button>
+<a href="game.html" class="btn btn-light mt-3 w-100">Back to Game Modes</a>
+</div>
+
+<script>
+const buttons = document.querySelectorAll('.difficulty');
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove selected from all buttons
+        buttons.forEach(b => b.classList.remove('selected'));
+        // Add selected to the clicked button
+        btn.classList.add('selected');
+        // Save selected difficulty
+        localStorage.setItem('selectedDifficulty', btn.textContent);
+        // Go to playgame page
+        setTimeout(() => { window.location.href = 'playgame.html'; }, 300);
+    });
+});
+</script>
+
+</body>
+</html>
