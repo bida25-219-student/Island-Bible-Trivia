@@ -271,44 +271,30 @@ callback(-1);
 
 function showQuestion(){
 
+if(!questions[currentQuestionIndex]){
+return;
+}
+
 document.getElementById("progress").textContent =
-"Question " + (currentQuestionIndex + 1) +
-" of " + questions.length;
+"Question " + (currentQuestionIndex + 1) + " of " + questions.length
 
 const qObj = questions[currentQuestionIndex];
 
-questionArea.classList.remove("fade");
-void questionArea.offsetWidth;
-questionArea.classList.add("fade");
-
 questionArea.innerHTML =
-
 `<h5>${qObj.q}</h5>` +
+qObj.a.map((ans,i)=>`<button class="answerBtn" data-index="${i}">${ans}</button>`).join('');
 
-qObj.a.map((ans,i)=>
-
-`<button class="answerBtn" data-index="${i}">
-${ans}
-</button>`
-
-).join('');
-
-nextBtn.style.display = "none";
+nextBtn.style.display="none";
 
 clearInterval(timerInterval);
 
 startTimer(revealAnswer);
 
-document.querySelectorAll('.answerBtn').forEach(btn => {
-
+document.querySelectorAll('.answerBtn').forEach(btn=>{
 btn.addEventListener('click',()=>{
-
-const selected = parseInt(btn.dataset.index);
-
+const selected=parseInt(btn.dataset.index);
 revealAnswer(selected);
-
 });
-
 });
 
 }
